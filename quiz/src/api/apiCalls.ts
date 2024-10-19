@@ -129,3 +129,12 @@ export const evaluateAnswer = async (question: string, answer: string, userAnswe
     throw error;
   }
 };
+
+export const incrementQuizCount = async (id: string): Promise<void> => {
+  try {
+    await axiosInstance.patch(`/quiz/${id}/increment-count`);
+  } catch (error) {
+    console.error('Failed to increment quiz count:', error);
+    throw error;
+  }
+};

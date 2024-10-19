@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import QuizSession from './QuizSession';
-import { getQuizzesBySetId, fetchQuizDetails } from './api/apiCalls';
+import { getQuizzesBySetId, fetchQuizDetails, incrementQuizCount } from './api/apiCalls';
 
 interface QuizDetail {
   setID: number;
@@ -60,8 +60,16 @@ const QuizDetails: React.FC = () => {
     fetchQuizData();
   }, [id, location.state]);
 
-  const handleStartQuiz = () => {
-    setIsSessionStarted(true);
+  const handleStartQuiz = async () => {
+    if (id) {
+      try {
+        await incrementQuizCount(id);
+        setIsSessionStarted(true);
+      } catch (error) {
+        console.error('Failed to increment quiz count:', error);
+        setIsSessionStarted(true); // api 실패해도 퀴즈는 실행
+      }
+    }
   };
 
   const handleEditQuiz = () => {
