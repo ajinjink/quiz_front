@@ -128,9 +128,13 @@ const Main: React.FC = () => {
       {isLoggedIn && (
         <div className="mt-8 max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-4">My Quizzes</h1>
-          {quizzes.map((quiz) => (
-            <QuizCard key={quiz.setID} quiz={quiz} onClick={() => handleQuizClick(quiz)} />
-          ))}
+          {quizzes.length > 0 ? (
+            quizzes.map((quiz) => (
+              <QuizCard key={quiz.setID} quiz={quiz} onClick={() => handleQuizClick(quiz)} />
+            ))
+          ) : (
+            <p className="text-gray-500 text-center py-4">아직 생성하신 퀴즈가 없습니다.</p>
+          )}
           <button
             className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
             onClick={handleCreateQuiz}
