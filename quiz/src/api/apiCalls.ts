@@ -1,14 +1,5 @@
 import axiosInstance from './axiosInstance';
-
-interface Quiz {
-    setID: number;
-    title: string;
-    creator: string;
-    public: boolean;
-    quizType: string;
-    sharedList: string[];
-    cnt: number;
-}
+import { QuizDto } from '../interfaces/quiz.dto';
 
 interface LoginResponse {
   accessToken: string;
@@ -30,23 +21,20 @@ export const signup = async (signupData: SignupData): Promise<void> => {
   }
 };
 
-export const login = async (username: string, password: string): Promise<boolean> => {
+export const login = async (username: string, password: string): Promise<any> => {
   try {
     const response = await axiosInstance.post<LoginResponse>('/auth/login', { username, password });
-    if (response.data.accessToken) {
-      localStorage.setItem('token', response.data.accessToken);
-      return true;
-    }
-    return false;
+    return response;  // 전체 응답을 반환
   } catch (error) {
     console.error('Login failed:', error);
-    return false;
+    throw error;
   }
 };
 
-export const fetchQuizzes = async (): Promise<Quiz[]> => {
+export const fetchQuizzes = async (): Promise<QuizDto[]> => {
   try {
-    const response = await axiosInstance.get<Quiz[]>('/quiz/created');
+    const response = await axiosInstance.get<QuizDto[]>('/quiz/created');
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch quizzes:', error);
@@ -74,9 +62,9 @@ export const updateQuizSet = async (id: string, updateQuizSetDto: any) => {
     }
 };
 
-export const fetchQuizDetails = async (id: string): Promise<Quiz> => {
+export const fetchQuizDetails = async (id: string): Promise<QuizDto> => {
   try {
-    const response = await axiosInstance.get<Quiz>(`/quiz/${id}`);
+    const response = await axiosInstance.get<QuizDto>(`/quiz/${id}`);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch quiz details:', error);
@@ -100,6 +88,15 @@ export const createQuiz = async (quizData: CreateQuizSetDto): Promise<void> => {
     await axiosInstance.post('/quiz', quizData);
   } catch (error) {
     console.error('Failed to create quiz:', error);
+    throw error;
+  }
+};
+
+export const deleteQuiz = async (id: string): Promise<void> => {
+  try {
+    await axiosInstance.delete(`/quiz/${id}`);
+  } catch (error) {
+    console.error('Failed to delete quiz:', error);
     throw error;
   }
 };

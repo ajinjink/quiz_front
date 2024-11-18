@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { updateQuizSet } from './api/apiCalls';
+import { updateQuizSet } from './../../api/apiCalls';
+import { getQuizzesBySetId } from './../../api/apiCalls';
+import { fetchQuizDetails } from './../../api/apiCalls';
+import { QuizDto } from '../../interfaces/quiz.dto';
 
 interface QuizQuestion {
   id: number;
@@ -10,22 +13,51 @@ interface QuizQuestion {
   quizSetID: number;
 }
 
-interface Quiz {
-  setID: number;
-  title: string;
-  creator: string;
-  public: boolean;
-  quizType: string;
-  sharedList: string[];
-  cnt: number;
-}
-
 const EditQuiz: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [quiz, setQuiz] = useState<Quiz>(location.state.quiz);
+  const [quiz, setQuiz] = useState<QuizDto>(location.state.quiz);
   const [questions, setQuestions] = useState<QuizQuestion[]>(location.state.questions);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!id) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        let quizData: QuizDto;
+        let questionsData: QuizQuestion[];
+        
+        // location.state에서 데이터를 우선 사용
+        if (location.state?.quiz && location.state?.questions) {
+          quizData = location.state.quiz;
+          questionsData = location.state.questions;
+        } else {
+          // state가 없으면 API로 가져옴
+          [quizData, questionsData] = await Promise.all([
+            fetchQuizDetails(id),
+            getQuizzesBySetId(id)
+          ]);
+        }
+        
+        setQuiz(quizData);
+        setQuestions(questionsData);
+      } catch (error) {
+        console.error('Failed to fetch quiz data:', error);
+        setError('퀴즈 데이터를 불러오는데 실패했습니다.');
+        navigate('/dashboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, location.state, navigate]);
 
   const handleQuizChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -50,25 +82,36 @@ const EditQuiz: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id) {
-      console.error('Quiz ID is undefined');
-      alert('퀴즈 ID를 찾을 수 없습니다.');
+    if (!id || !quiz) {
+      console.error('Quiz ID or quiz data is undefined');
       return;
     }
+
     try {
       const updateData = {
         ...quiz,
-        questions: questions.map(({ id, no, question, answer }) => ({ id, no, question, answer }))
+        questions: questions.map(({ id, no, question, answer }) => ({
+          id,
+          no,
+          question,
+          answer
+        }))
       };
-      const updatedQuiz = await updateQuizSet(id, updateData);
+      
+      await updateQuizSet(id, updateData);
       alert('퀴즈가 성공적으로 수정되었습니다!');
-      navigate(`/quiz/${id}`, { 
-        replace: true, 
-        state: { quiz: updatedQuiz } 
+      
+      // 수정된 데이터와 함께 QuizDetail 페이지로 이동
+      navigate(`/quiz/${id}`, {
+        replace: true,
+        state: {
+          quiz,
+          questions
+        }
       });
     } catch (error) {
       console.error('Failed to update quiz:', error);
-      alert('퀴즈 수정에 실패했습니다. 다시 시도해주세요.');
+      setError('퀴즈 수정에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -151,20 +194,22 @@ const EditQuiz: React.FC = () => {
           문제 추가
         </button>
         <div>
-          <button
-            type="submit"
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
-          >
-            퀴즈 수정 완료
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(`/quiz/${id}`)}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-          >
-            취소
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
+        >
+          퀴즈 수정 완료
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate(`/quiz/${id}`, {
+            state: { quiz, questions }
+          })}
+          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+        >
+          취소
+        </button>
+      </div>
       </form>
     </div>
   );

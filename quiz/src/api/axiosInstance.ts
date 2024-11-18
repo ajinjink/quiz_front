@@ -14,8 +14,14 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log('Request headers:', config.headers);
   return config;
 }, (error) => {
+  if (error.response?.status === 401) { // 토큰 만료 / 오류
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login'; // 로그아웃
+  }
   return Promise.reject(error);
 });
 
