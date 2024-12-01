@@ -74,36 +74,38 @@ const UserProfile = () => {
         );
       case '계정 설정':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold mb-6">계정 설정</h2>
-            <div className="max-w-md space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">사용자 이름</label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                  defaultValue={user?.username}
-                />
+          <div className="flex justify-center">
+            <div className="space-y-6 w-full max-w-md">
+              <h2 className="text-2xl font-bold mb-6">계정 설정</h2>
+              <div className="max-w-md space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">사용자 이름</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    defaultValue={user?.username}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">학교</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    defaultValue={user?.university}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">학과</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    defaultValue={user?.department}
+                  />
+                </div>
+                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                  변경사항 저장
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">학교</label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                  defaultValue={user?.university}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">학과</label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                  defaultValue={user?.department}
-                />
-              </div>
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                변경사항 저장
-              </button>
             </div>
           </div>
         );

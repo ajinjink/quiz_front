@@ -83,7 +83,7 @@ const SignUp: React.FC = () => {
     if (validateForm()) {
       try {
         await signup(formData);
-        navigate('/');
+        navigate('/login');
       } catch (error: any) {
         // Backend error handling
         if (error.response?.data?.message?.includes('username')) {
@@ -126,7 +126,7 @@ const SignUp: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+      <div className="max-w-md mx-auto bg-white p-8 rounded-lg">
         <h2 className="text-2xl font-bold mb-6 text-center">회원가입</h2>
         
         {errors.server && (
@@ -235,18 +235,20 @@ const SignUp: React.FC = () => {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            회원가입
-          </button>
+          <div>
+            <button
+              type="submit"
+              className="w-full bg-white text-blue-600 border-2 border-blue-600 py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white transition duration-200 mt-6"
+            >
+              회원가입
+            </button>
+          </div>
         </form>
 
         <div className="mt-4 text-center">
           <button
             onClick={() => navigate('/login')}
-            className="text-blue-600 hover:text-blue-800"
+            className="text-slate-400 hover:text-blue-800"
           >
             이미 계정이 있으신가요? 로그인하기
           </button>

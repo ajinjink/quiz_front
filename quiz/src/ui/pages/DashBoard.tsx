@@ -148,7 +148,7 @@ const Dashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="border rounded-lg p-4">
+              <div key={i} className="border rounded-lg p-4 bg-white">
                 <h3 className="text-lg font-medium mb-2">컴퓨터구조 기말고사 대비</h3>
                 <div className="text-sm text-gray-600">
                   <p>컴퓨터공학과</p>
@@ -170,7 +170,7 @@ const Dashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="border rounded-lg p-4">
+              <div key={i} className="border rounded-lg p-4 bg-white">
                 <h3 className="text-lg font-medium mb-2">전공의사국가고시 문제은행</h3>
                 <div className="text-sm text-gray-600">
                   <p>의과대학</p>
