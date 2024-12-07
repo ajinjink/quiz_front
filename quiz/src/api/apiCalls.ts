@@ -14,7 +14,6 @@ interface SignupData {
 export const signup = async (signupData: SignupData): Promise<void> => {
   try {
     const response = await axiosInstance.post('/auth/signup', signupData);
-    // console.log('회원가입 성공:', response.data);
   } catch (error) {
     console.error('회원가입 실패:', error);
     throw error;
@@ -34,7 +33,6 @@ export const login = async (username: string, password: string): Promise<any> =>
 export const fetchMyQuizzes = async (): Promise<QuizDto[]> => { // 내가 생성한 퀴즈
   try {
     const response = await axiosInstance.get<QuizDto[]>('/quiz/created');
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch quizzes:', error);
@@ -55,7 +53,6 @@ export const fetchSharedQuizzes = async () : Promise<QuizDto[]> => {
 export const getRecentQuizSets = async (): Promise<QuizDto[]> => {
   try {
     const response = await axiosInstance.get<QuizDto[]>('/quiz/recent');
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch recent quizzes:', error);
@@ -168,12 +165,34 @@ export const incrementQuizCount = async (id: string): Promise<void> => {
   }
 };
 
-export const getTopPublicQuizSets = async (): Promise<QuizDto[]> => {
+export const getFilteredPublicQuizSets = async (
+  params: {
+    university?: string;
+    department?: string;
+    limit?: number;
+  }
+): Promise<QuizDto[]> => {
   try {
-    const response = await axiosInstance.get<QuizDto[]>('/quiz/top-public');
+    const response = await axiosInstance.get<QuizDto[]>('/quiz/filtered', {
+      params: {
+        ...(params.university && { university: params.university }),
+        ...(params.department && { department: params.department }),
+        ...(params.limit && { limit: params.limit })
+      }
+    });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch top public quizzes:', error);
+    console.error('Failed to fetch filtered public quizzes:', error);
+    throw error;
+  }
+};
+
+export const searchQuizSet = async (keyword: string): Promise<QuizDto[]> => {
+  try {
+    const response = await axiosInstance.get<QuizDto[]>(`/quiz/search?keyword=${keyword}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to search for keyword ${keyword}:`, error);
     throw error;
   }
 };

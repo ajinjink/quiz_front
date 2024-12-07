@@ -24,11 +24,15 @@ const LandingPage = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <div className="max-w-6xl mx-auto px-6">
+            <div className="max-w-6xl mx-auto px-6 mb-40">
                 {/* Navigation Bar */}
                 <nav className="flex items-center justify-between px-6 py-4">
                     <Logo />
-                    <SearchBlock placeholder="학교, 학과, 과목, 교재를 검색해보세요."/>
+                    {/* <SearchBlock placeholder="학교, 학과, 과목, 교재를 검색해보세요." onSearch={(keyword) => {
+                        navigate('/quizzes', { 
+                        state: { searchKeyword: keyword } 
+                        });
+                    }}/> */}
                     <div className="flex items-center space-x-4">
                         {isAuthenticated ? (
                             <BlueButton text="대시보드" onClick={handleDashboard} />
@@ -124,7 +128,7 @@ const LandingPage = () => {
 
 
             </div>
-            <footer className="mt-auto bg-gray-100 py-6 mt-60">
+            <footer className="mt-auto bg-gray-100 py-6 mt-40">
                 <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8">

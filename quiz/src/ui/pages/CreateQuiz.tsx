@@ -220,7 +220,7 @@ const CreateQuiz: React.FC = () => {
               <Logo />
             </div>
             <div className="flex-1 max-w-3xl mx-12">
-              <SearchBlock placeholder="학교, 학과, 과목, 교재를 검색해보세요" />
+              {/* <SearchBlock placeholder="학교, 학과, 과목, 교재를 검색해보세요" /> */}
             </div>
             <div className="flex items-center space-x-4">
               <button className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-white">
@@ -319,47 +319,6 @@ const CreateQuiz: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* <div className="mt-8">
-              <h2 className="text-xl font-bold mb-4">문제</h2>
-              {quizData.questions.map((question, index) => (
-                <div key={index} className="mb-4 p-4 border rounded-lg bg-gray-50">
-                  <div className="mb-2">
-                    <label htmlFor={`question-${index}`} className="block mb-2 font-medium">
-                      문제 {index + 1}
-                    </label>
-                    <textarea
-                      id={`question-${index}`}
-                      value={question.question}
-                      onChange={(e) => handleQuestionChange(index, 'question', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <label htmlFor={`answer-${index}`} className="block mb-2 font-medium">
-                      답변
-                    </label>
-                    <input
-                      type="text"
-                      id={`answer-${index}`}
-                      value={question.answer}
-                      onChange={(e) => handleQuestionChange(index, 'answer', e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                      required
-                    />
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addQuestion}
-                className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
-              >
-                + 문제 추가
-              </button>
-            </div> */}
 
             {isJsonMode ? renderJsonUpload() : renderQuestionsList()}
 

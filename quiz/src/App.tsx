@@ -12,6 +12,7 @@ import QuizDetails from './ui/pages/QuizDetail';
 import CreateQuiz from './ui/pages/CreateQuiz';
 import EditQuiz from './ui/pages/EditQuiz';
 import UserProfile from './ui/pages/Profile';
+import QuizList from './ui/pages/QuizList';
 import { useAuth } from './contexts/AuthContext';
 
 const AppRoutes = () => {
@@ -91,6 +92,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <EditQuiz />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quizzes"
+        element={
+          <ProtectedRoute>
+            <QuizList />
           </ProtectedRoute>
         }
       />

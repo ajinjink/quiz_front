@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { PlusCircle, User } from 'lucide-react';
 import Logo from '../component/Logo';
 import SearchBlock from '../component/SearchBlock';
-import { getRecentQuizSets, getTopPublicQuizSets } from '../../api/apiCalls';
+import { getRecentQuizSets, getFilteredPublicQuizSets } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
+import { useAuth } from '../../contexts/AuthContext';
 
 const getRecentQuizzes = (quizzes: QuizDto[]) => {
     return quizzes
@@ -37,23 +38,33 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [recentQuizzes, setRecentQuizzes] = useState<QuizDto[]>([]);
   const [topQuizzes, setTopQuizzes] = useState<QuizDto[]>([]);
+  const [topDepartmentQuizzes, setTopDepartmentQuizzes] = useState<QuizDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isTopQuizzesLoading, setIsTopQuizzesLoading] = useState(true);
+  const [isTopDepartmentQuizzesLoading, setIsTopDepartmentQuizzesLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadQuizzes = async () => {
       try {
-        const [myQuizzesData, topQuizzesData] = await Promise.all([
+        const [myQuizzesData, topQuizzesData, topDepartmentQuizzesData] = await Promise.all([
           getRecentQuizSets(),
-          getTopPublicQuizSets()
+          getFilteredPublicQuizSets({limit: 8}),
+          getFilteredPublicQuizSets({
+            university: user?.university,
+            department: user?.department,
+            limit: 8
+          })
         ]);
         setRecentQuizzes(myQuizzesData);
         setTopQuizzes(topQuizzesData);
+        setTopDepartmentQuizzes(topDepartmentQuizzesData);
       } catch (error) {
         console.error('Failed to fetch quizzes:', error);
       } finally {
         setIsLoading(false);
         setIsTopQuizzesLoading(false);
+        setIsTopDepartmentQuizzesLoading(false);
       }
     };
     loadQuizzes();
@@ -114,7 +125,14 @@ const Dashboard = () => {
               <Logo />
             </div>
             <div className="flex-1 max-w-3xl mx-12">
-              <SearchBlock placeholder="학교, 학과, 과목, 교재를 검색해보세요" />
+            <SearchBlock 
+              placeholder="학교, 학과, 과목, 교재를 검색해보세요" 
+              onSearch={(keyword) => {
+                navigate('/quizzes', { 
+                  state: { searchKeyword: keyword } 
+                });
+              }}
+            />
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -154,29 +172,46 @@ const Dashboard = () => {
         <section className="mb-12">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">우리 학과 인기 시험지</h2>
-            <button className="text-blue-600 hover:text-blue-800">더보기</button>
+            <button className="text-blue-600 hover:text-blue-800"
+              onClick={() => navigate('/quizzes', { 
+                state: { 
+                  university: user?.university, 
+                  department: user?.department 
+                }
+            })}>더보기</button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="border rounded-lg p-4 bg-white">
-                <h3 className="text-lg font-medium mb-2">컴퓨터구조 기말고사 대비</h3>
-                <div className="text-sm text-gray-600">
-                  <p>컴퓨터공학과</p>
-                  <div className="flex justify-between mt-2">
-                    <span>총 50문제</span>
-                    <span>조회수 127</span>
+          {isTopDepartmentQuizzesLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {topDepartmentQuizzes.map((quiz) => (
+                <div
+                  key={quiz.setID}
+                  onClick={() => handleQuizClick(quiz)}
+                  className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
+                  <div className="text-sm text-gray-600">
+                    <p>{quiz.subject}</p>
+                    <p className="text-sm text-gray-500">{quiz.university}</p>
+                    <div className="flex justify-between mt-2">
+                      <span>{quiz.department}</span>
+                      <span>조회수 {quiz.cnt}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Popular Overall Section */}
         <section>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">인기 시험지</h2>
-            <button className="text-blue-600 hover:text-blue-800">더보기</button>
+            <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate('/quizzes')} >더보기</button>
           </div>
           {isTopQuizzesLoading ? (
             <div className="text-center py-8">
