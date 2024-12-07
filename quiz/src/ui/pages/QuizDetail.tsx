@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Star, Share2, Edit, Trash2 } from 'lucide-react';
-import { getQuizzesBySetId, fetchQuizDetails, incrementQuizCount, deleteQuiz } from '../../api/apiCalls';
+import { getQuizzesBySetId, fetchQuizDetails, incrementQuizCount, deleteQuiz, shareQuiz } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
 import QuizSession from './QuizSession';
 import Logo from '../component/Logo';
+import ShareModal from '../component/ShareModal';
 
 interface QuizQuestion {
   id: number;
@@ -19,6 +20,7 @@ const QuizDetail = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -101,7 +103,7 @@ const QuizDetail = () => {
   };
 
   const handleShare = () => {
-    // Share functionality implementation
+    setShowShareModal(true);
   };
 
   if (isLoading) {
@@ -143,94 +145,109 @@ const QuizDetail = () => {
           </div>
         </div>
       </div>
+      <div className="max-w-6xl mx-auto px-6">
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Quiz Info Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{quiz.title}</h1>
-              <div className="text-gray-600 mb-4">
-                {quiz.creator}
-              </div>
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-5 h-5 ${
-                        star <= 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Quiz Info Card */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">{quiz.title}</h1>
+                <div className="text-gray-600 mb-4">
+                  {quiz.creator}
                 </div>
-                <span className="text-gray-600">총 {questions.length}문제</span>
-                <span className="text-gray-600">누적 풀이 {quiz.cnt}회</span>
-              </div>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleShare}
-                className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
-              >
-                <Share2 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleEdit}
-                className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
-              >
-                <Edit className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex space-x-4 mt-6">
-            <button
-              onClick={handleStartQuiz}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              시작하기
-            </button>
-            <button
-              onClick={handleEdit}
-              className="flex-1 border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition-colors"
-            >
-              수정하기
-            </button>
-            <button
-              onClick={handleDelete}
-              className="flex-1 border-2 border-red-600 text-red-600 py-3 rounded-lg hover:bg-red-50 transition-colors"
-            >
-              삭제하기
-            </button>
-          </div>
-        </div>
-
-        {/* Comments Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">댓글</h2>
-          <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((index) => (
-              <div key={index} className="border-b last:border-b-0 pb-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <span className="font-medium mr-2">T5****</span>
-                    <span className="text-gray-500">그냥 그랬어요</span>
-                  </div>
+                <div className="flex items-center space-x-4 mb-4">
                   <div className="flex items-center">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-4 h-4 ${
-                          star <= 3 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                        className={`w-5 h-5 ${
+                          star <= 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
                         }`}
                       />
                     ))}
                   </div>
+                  <span className="text-gray-600">총 {questions.length}문제</span>
+                  <span className="text-gray-600">누적 풀이 {quiz.cnt}회</span>
                 </div>
               </div>
-            ))}
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleShare}
+                  className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleEdit}
+                  className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
+                >
+                  <Edit className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+              {showShareModal && (
+                <ShareModal 
+                  quizId={id!} 
+                  onClose={() => setShowShareModal(false)} 
+                />
+              )}
+            </div>
+
+            <div className="flex space-x-4 mt-6">
+              <button
+                onClick={handleStartQuiz}
+                className="w-2/5 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                시작하기
+              </button>
+              {/* <button
+                onClick={handleEdit}
+                className="flex-1 border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition-colors"
+              >
+                수정하기
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 border-2 border-red-600 text-red-600 py-3 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                삭제하기
+              </button> */}
+            </div>
+          </div>
+
+          {/* Comments Section */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-bold mb-4">댓글</h2>
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((index) => (
+                <div key={index} className="border-b last:border-b-0 pb-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="font-medium mr-2">T5****</span>
+                      <span className="text-gray-500">그냥 그랬어요</span>
+                    </div>
+                    <div className="flex items-center">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${
+                            star <= 3 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

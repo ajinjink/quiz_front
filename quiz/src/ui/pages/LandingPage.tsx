@@ -24,7 +24,7 @@ const LandingPage = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            <div className="max-w-5xl mx-auto px-6">
+            <div className="max-w-6xl mx-auto px-6">
                 {/* Navigation Bar */}
                 <nav className="flex items-center justify-between px-6 py-4">
                     <Logo />
@@ -45,7 +45,7 @@ const LandingPage = () => {
                 <div
                     className="flex items-center justify-center"
                     style={{ height: "calc(100vh - 72px)" }}>
-                    <div className="max-w-5xl w-full px-4">
+                    <div className="max-w-7xl w-full px-4">
                         <div className="text-center">
                             <h1 className="text-5xl font-bold mb-8">
                                 내 마음대로 만들고 AI가 채점해주는
@@ -124,7 +124,7 @@ const LandingPage = () => {
 
 
             </div>
-            <footer className="mt-auto bg-gray-100 py-6 mt-40">
+            <footer className="mt-auto bg-gray-100 py-6 mt-60">
                 <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8">

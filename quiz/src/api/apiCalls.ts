@@ -31,13 +31,34 @@ export const login = async (username: string, password: string): Promise<any> =>
   }
 };
 
-export const fetchQuizzes = async (): Promise<QuizDto[]> => {
+export const fetchMyQuizzes = async (): Promise<QuizDto[]> => { // 내가 생성한 퀴즈
   try {
     const response = await axiosInstance.get<QuizDto[]>('/quiz/created');
     console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch quizzes:', error);
+    throw error;
+  }
+};
+
+export const fetchSharedQuizzes = async () : Promise<QuizDto[]> => {
+  try {
+    const response = await axiosInstance.get<QuizDto[]>('/quiz/shared');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch quizzes:', error);
+    throw error;
+  }
+};
+
+export const getRecentQuizSets = async (): Promise<QuizDto[]> => {
+  try {
+    const response = await axiosInstance.get<QuizDto[]>('/quiz/recent');
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch recent quizzes:', error);
     throw error;
   }
 };
@@ -101,6 +122,17 @@ export const deleteQuiz = async (id: string): Promise<void> => {
   }
 };
 
+export const shareQuiz = async (quizSetId: string, username: string): Promise<void> => {
+  try {
+    await axiosInstance.post(`/quiz/${quizSetId}/share`, {
+      username
+    });
+  } catch (error) {
+    console.error('Failed to share quiz set:', error);
+    throw error;
+  }
+};
+
 interface EvaluationResponse {
   is_correct: boolean;
   explanation: string;
@@ -132,6 +164,16 @@ export const incrementQuizCount = async (id: string): Promise<void> => {
     await axiosInstance.patch(`/quiz/${id}/increment-count`);
   } catch (error) {
     console.error('Failed to increment quiz count:', error);
+    throw error;
+  }
+};
+
+export const getTopPublicQuizSets = async (): Promise<QuizDto[]> => {
+  try {
+    const response = await axiosInstance.get<QuizDto[]>('/quiz/top-public');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch top public quizzes:', error);
     throw error;
   }
 };

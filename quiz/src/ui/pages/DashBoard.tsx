@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PlusCircle, User } from 'lucide-react';
 import Logo from '../component/Logo';
 import SearchBlock from '../component/SearchBlock';
-import { fetchQuizzes } from '../../api/apiCalls';
+import { getRecentQuizSets, getTopPublicQuizSets } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
 
 const getRecentQuizzes = (quizzes: QuizDto[]) => {
@@ -35,21 +35,30 @@ return new Intl.DateTimeFormat('ko-KR', {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [myQuizzes, setMyQuizzes] = useState<QuizDto[]>([]);
+  const [recentQuizzes, setRecentQuizzes] = useState<QuizDto[]>([]);
+  const [topQuizzes, setTopQuizzes] = useState<QuizDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTopQuizzesLoading, setIsTopQuizzesLoading] = useState(true);
 
   useEffect(() => {
     const loadQuizzes = async () => {
       try {
-        const quizzes = await fetchQuizzes();
-        setMyQuizzes(quizzes);
+        const [myQuizzesData, topQuizzesData] = await Promise.all([
+          getRecentQuizSets(),
+          getTopPublicQuizSets()
+        ]);
+        setRecentQuizzes(myQuizzesData);
+        setTopQuizzes(topQuizzesData);
       } catch (error) {
         console.error('Failed to fetch quizzes:', error);
       } finally {
         setIsLoading(false);
+        setIsTopQuizzesLoading(false);
       }
     };
     loadQuizzes();
+    console.log(recentQuizzes);
+    console.log(topQuizzes);
   }, []);
 
   const handleProfileClick = () => {
@@ -64,16 +73,17 @@ const Dashboard = () => {
     <div 
       key={quiz.setID}
       onClick={() => handleQuizClick(quiz)}
-      className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+      className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer bg-white"
     >
       <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
       <div className="text-sm text-gray-600">
         <p>{quiz.subject}</p>
+        <p>{quiz.university} {quiz.department}</p>
         <div className="mt-2 text-xs text-gray-500">
           마지막 학습: {formatDate(quiz.lastAttemptDate)}
         </div>
         <div className="flex justify-between mt-2">
-          {/* <span>총 50문제</span> */}
+          {/* <span>총 {}문제</span> */}
           <span> </span>
           <span>조회수 {quiz.cnt}</span>
         </div>
@@ -131,9 +141,9 @@ const Dashboard = () => {
           </div>
           {isLoading ? (
             <div className="text-center py-8">Loading...</div>
-                ) : myQuizzes.length > 0 ? (
+                ) : recentQuizzes.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {getRecentQuizzes(myQuizzes).map(renderQuizCard)}
+                    {getRecentQuizzes(recentQuizzes).map(renderQuizCard)}
                 </div>
                 ) : (
                 renderEmptyState()
@@ -168,20 +178,32 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold">인기 시험지</h2>
             <button className="text-blue-600 hover:text-blue-800">더보기</button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="border rounded-lg p-4 bg-white">
-                <h3 className="text-lg font-medium mb-2">전공의사국가고시 문제은행</h3>
-                <div className="text-sm text-gray-600">
-                  <p>의과대학</p>
-                  <div className="flex justify-between mt-2">
-                    <span>총 200문제</span>
-                    <span>조회수 1,872</span>
+          {isTopQuizzesLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {topQuizzes.map((quiz) => (
+                <div
+                  key={quiz.setID}
+                  onClick={() => handleQuizClick(quiz)}
+                  className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
+                  <div className="text-sm text-gray-600">
+                    <p>{quiz.subject}</p>
+                    <p className="text-sm text-gray-500">{quiz.university}</p>
+                    <div className="flex justify-between mt-2">
+                      <span>{quiz.department}</span>
+                      <span>조회수 {quiz.cnt}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+           
         </section>
       </main>
     </div>
