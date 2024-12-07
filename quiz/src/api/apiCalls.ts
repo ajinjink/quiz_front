@@ -23,12 +23,32 @@ export const signup = async (signupData: SignupData): Promise<void> => {
 export const login = async (username: string, password: string): Promise<any> => {
   try {
     const response = await axiosInstance.post<LoginResponse>('/auth/login', { username, password });
-    return response;  // 전체 응답을 반환
+    return response;
   } catch (error) {
     console.error('Login failed:', error);
     throw error;
   }
 };
+
+export const checkUsernameExists = async (username: string): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get('/auth/check-username', { params: {username} });
+    return response.data.exists;
+  } catch (error) {
+    console.log('Failed to check if username exists', error);
+    throw error;
+  }
+}
+
+export const checkEmailExists = async (email: string): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get('/auth/check-email', { params: {email} });
+    return response.data.exists;
+  } catch (error) {
+    console.log('Failed to check if email exists', error);
+    throw error;
+  }
+}
 
 export const fetchMyQuizzes = async (): Promise<QuizDto[]> => { // 내가 생성한 퀴즈
   try {
