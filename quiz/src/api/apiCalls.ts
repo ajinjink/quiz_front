@@ -216,3 +216,12 @@ export const searchQuizSet = async (keyword: string): Promise<QuizDto[]> => {
     throw error;
   }
 };
+
+export const withdraw = async (): Promise<void> => {
+  try {
+    await axiosInstance.delete('/auth/withdraw');
+  } catch (error) {
+    console.error('Failed to withdraw:', error);
+    throw error;
+  }
+};

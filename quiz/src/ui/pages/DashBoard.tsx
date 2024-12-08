@@ -3,23 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { PlusCircle, User } from 'lucide-react';
 import Logo from '../component/Logo';
 import SearchBlock from '../component/SearchBlock';
-import { getRecentQuizSets, getFilteredPublicQuizSets } from '../../api/apiCalls';
+import { getRecentQuizSets, getFilteredPublicQuizSets, fetchMyQuizzes, fetchSharedQuizzes } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
 import { useAuth } from '../../contexts/AuthContext';
 
 const getRecentQuizzes = (quizzes: QuizDto[]) => {
-    return quizzes
-      .sort((a, b) => {
-        // 둘 다 lastAttemptDate가 없으면 동일 순위
-        if (!a.lastAttemptDate && !b.lastAttemptDate) return 0;
-        // a만 lastAttemptDate가 없으면 b가 먼저
-        if (!a.lastAttemptDate) return 1;
-        // b만 lastAttemptDate가 없으면 a가 먼저
-        if (!b.lastAttemptDate) return -1;
-        // 둘 다 있으면 날짜 비교
-        return new Date(b.lastAttemptDate).getTime() - new Date(a.lastAttemptDate).getTime();
-      })
-      .slice(0, 4);
+  return quizzes
+    .sort((a, b) => {
+      if (!a.lastAttemptDate && !b.lastAttemptDate) return 0;
+      if (!a.lastAttemptDate) return 1;
+      if (!b.lastAttemptDate) return -1;
+      return new Date(b.lastAttemptDate).getTime() - new Date(a.lastAttemptDate).getTime();
+    })
+    .slice(0, 8); // 최대 8개
 };
   
 const formatDate = (dateString: string | null) => {
@@ -39,6 +35,8 @@ const Dashboard = () => {
   const [recentQuizzes, setRecentQuizzes] = useState<QuizDto[]>([]);
   const [topQuizzes, setTopQuizzes] = useState<QuizDto[]>([]);
   const [topDepartmentQuizzes, setTopDepartmentQuizzes] = useState<QuizDto[]>([]);
+  const [myQuizzes, setMyQuizzes] = useState<QuizDto[]>([]);
+  const [sharedQuizzes, setSharedQuizzes] = useState<QuizDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isTopQuizzesLoading, setIsTopQuizzesLoading] = useState(true);
   const [isTopDepartmentQuizzesLoading, setIsTopDepartmentQuizzesLoading] = useState(true);
@@ -47,18 +45,22 @@ const Dashboard = () => {
   useEffect(() => {
     const loadQuizzes = async () => {
       try {
-        const [myQuizzesData, topQuizzesData, topDepartmentQuizzesData] = await Promise.all([
+        const [myRecentQuizzesData, topQuizzesData, topDepartmentQuizzesData, myCreatedQuizzesData, sharedQuizzesData] = await Promise.all([
           getRecentQuizSets(),
           getFilteredPublicQuizSets({limit: 8}),
           getFilteredPublicQuizSets({
             university: user?.university,
             department: user?.department,
             limit: 8
-          })
+          }),
+          fetchMyQuizzes(),
+          fetchSharedQuizzes()
         ]);
-        setRecentQuizzes(myQuizzesData);
+        setRecentQuizzes(myRecentQuizzesData);
         setTopQuizzes(topQuizzesData);
         setTopDepartmentQuizzes(topDepartmentQuizzesData);
+        setMyQuizzes(myCreatedQuizzesData);
+        setSharedQuizzes(sharedQuizzesData);
       } catch (error) {
         console.error('Failed to fetch quizzes:', error);
       } finally {
@@ -68,8 +70,6 @@ const Dashboard = () => {
       }
     };
     loadQuizzes();
-    console.log(recentQuizzes);
-    console.log(topQuizzes);
   }, []);
 
   const handleProfileClick = () => {
@@ -157,14 +157,40 @@ const Dashboard = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">학습 계속하기</h2>
           </div>
-          {isLoading ? (
-            <div className="text-center py-8">Loading...</div>
-                ) : recentQuizzes.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {getRecentQuizzes(recentQuizzes).map(renderQuizCard)}
+            {isLoading ? (
+              <div className="text-center py-8">Loading...</div>
+            ) : recentQuizzes.length > 0 ? (
+              <div className="relative">
+                <div className="overflow-x-auto pb-4 hide-scrollbar">
+                  <div className="flex space-x-4 min-w-min">
+                    {getRecentQuizzes(recentQuizzes).map((quiz) => (
+                      <div key={quiz.setID} className="w-[300px] flex-shrink-0">
+                        {renderQuizCard(quiz)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                ) : (
-                renderEmptyState()
+              </div>
+            ) : myQuizzes.length > 0 || sharedQuizzes.length > 0 ? (
+              <div className="relative">
+                <div className="overflow-x-auto pb-4 hide-scrollbar">
+                  <div className="flex space-x-4 min-w-min">
+                    {myQuizzes.length > 0 && myQuizzes.map((quiz) => (
+                      <div key={quiz.setID} className="w-[300px] flex-shrink-0">
+                        {renderQuizCard(quiz)}
+                      </div>
+                    ))}
+                    {sharedQuizzes.length > 0 && sharedQuizzes.map((quiz) => (
+                      <div key={quiz.setID} className="w-[300px] flex-shrink-0">
+                        {renderQuizCard(quiz)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            ) : (
+              renderEmptyState()
             )}
         </section>
 
@@ -185,24 +211,29 @@ const Dashboard = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {topDepartmentQuizzes.map((quiz) => (
-                <div
-                  key={quiz.setID}
-                  onClick={() => handleQuizClick(quiz)}
-                  className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
-                  <div className="text-sm text-gray-600">
-                    <p>{quiz.subject}</p>
-                    <p className="text-sm text-gray-500">{quiz.university}</p>
-                    <div className="flex justify-between mt-2">
-                      <span>{quiz.department}</span>
-                      <span>조회수 {quiz.cnt}</span>
+            <div className="relative">
+              <div className="overflow-x-auto pb-4 hide-scrollbar">
+                <div className="flex space-x-4 min-w-min">
+                  {topDepartmentQuizzes.slice(0, 8).map((quiz) => (
+                    <div key={quiz.setID} className="w-[300px] flex-shrink-0">
+                      <div
+                        onClick={() => handleQuizClick(quiz)}
+                        className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer h-full"
+                      >
+                        <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
+                        <div className="text-sm text-gray-600">
+                          <p>{quiz.subject}</p>
+                          <p className="text-sm text-gray-500">{quiz.university}</p>
+                          <div className="flex justify-between mt-2">
+                            <span>{quiz.department}</span>
+                            <span>조회수 {quiz.cnt}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           )}
         </section>
@@ -218,27 +249,31 @@ const Dashboard = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {topQuizzes.map((quiz) => (
-                <div
-                  key={quiz.setID}
-                  onClick={() => handleQuizClick(quiz)}
-                  className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
-                  <div className="text-sm text-gray-600">
-                    <p>{quiz.subject}</p>
-                    <p className="text-sm text-gray-500">{quiz.university}</p>
-                    <div className="flex justify-between mt-2">
-                      <span>{quiz.department}</span>
-                      <span>조회수 {quiz.cnt}</span>
+            <div className="relative">
+              <div className="overflow-x-auto pb-4 hide-scrollbar">
+                <div className="flex space-x-4 min-w-min">
+                  {topQuizzes.slice(0, 8).map((quiz) => (
+                    <div key={quiz.setID} className="w-[300px] flex-shrink-0">
+                      <div
+                        onClick={() => handleQuizClick(quiz)}
+                        className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer h-full"
+                      >
+                        <h3 className="text-lg font-medium mb-2">{quiz.title}</h3>
+                        <div className="text-sm text-gray-600">
+                          <p>{quiz.subject}</p>
+                          <p className="text-sm text-gray-500">{quiz.university}</p>
+                          <div className="flex justify-between mt-2">
+                            <span>{quiz.department}</span>
+                            <span>조회수 {quiz.cnt}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           )}
-           
         </section>
       </main>
     </div>

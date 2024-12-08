@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Pencil, LogOut, Settings, BookOpen, Share2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Logo from '../component/Logo';
-import { fetchMyQuizzes, fetchSharedQuizzes } from '../../api/apiCalls';
+import { fetchMyQuizzes, fetchSharedQuizzes, withdraw } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
 
 const UserProfile = () => {
@@ -186,6 +186,22 @@ const UserProfile = () => {
           </div>
         );
       case '계정 설정':
+        const handleWithdraw = async () => {
+          const isConfirmed = window.confirm(
+            '정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 데이터가 삭제됩니다.'
+          );
+      
+          if (isConfirmed) {
+            try {
+              await withdraw();
+              logout();
+              navigate('/', { replace: true });
+            } catch (error) {
+              alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
+            }
+          }
+        };
+
         return (
           <div className="flex justify-center">
             <div className="space-y-6 w-full max-w-md">
@@ -218,6 +234,19 @@ const UserProfile = () => {
                 <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
                   변경사항 저장
                 </button>
+
+                <div className="pt-6 border-t mt-8">
+                  <h3 className="text-lg font-medium text-red-600 mb-2">위험 구역</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    계정을 삭제하면 모든 데이터가 영구적으로 제거됩니다. 이 작업은 되돌릴 수 없습니다.
+                  </p>
+                  <button
+                    onClick={handleWithdraw}
+                    className="w-full bg-white border-2 border-red-600 text-red-600 py-2 px-4 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
+                  >
+                    탈퇴하기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
