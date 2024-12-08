@@ -7,7 +7,7 @@ import { fetchMyQuizzes, fetchSharedQuizzes } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
 
 const UserProfile = () => {
-  const [activeTab, setActiveTab] = useState('내 시험지');
+  const [activeTab, setActiveTab] = useState('내 퀴즈셋');
   const [myQuizzes, setMyQuizzes] = useState<QuizDto[]>([]);
   const [sharedQuizzes, setSharedQuizzes] = useState<QuizDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +16,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     const loadQuizzes = async () => {
-      if (activeTab === '내 시험지') {
+      if (activeTab === '내 퀴즈셋') {
         try {
           const quizzes = await fetchMyQuizzes();
           setMyQuizzes(quizzes);
@@ -26,7 +26,7 @@ const UserProfile = () => {
           setIsLoading(false);
         }
       }
-      else if (activeTab === '공유받은 시험지') {
+      else if (activeTab === '공유받은 퀴즈셋') {
         try {
           const quizzes = await fetchSharedQuizzes();
           setSharedQuizzes(quizzes);
@@ -59,8 +59,8 @@ const UserProfile = () => {
   };
 
   const navItems = [
-    { id: '내 시험지', icon: <BookOpen className="w-5 h-5" /> },
-    { id: '공유받은 시험지', icon: <Share2 className="w-5 h-5" /> },
+    { id: '내 퀴즈셋', icon: <BookOpen className="w-5 h-5" /> },
+    { id: '공유받은 퀴즈셋', icon: <Share2 className="w-5 h-5" /> },
     { id: '찜하기', icon: <BookOpen className="w-5 h-5" /> },
     { id: '계정 설정', icon: <Settings className="w-5 h-5" /> },
     { id: '로그아웃', icon: <LogOut className="w-5 h-5" /> }
@@ -91,7 +91,7 @@ const UserProfile = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case '내 시험지':
+      case '내 퀴즈셋':
         if (isLoading) {
           return (
             <div className="flex justify-center items-center h-64">
@@ -116,13 +116,13 @@ const UserProfile = () => {
 
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-6">내 시험지</h2>
+            <h2 className="text-2xl font-bold mb-6">내 퀴즈셋</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {myQuizzes.map((quiz) => (
                 <div
                   key={quiz.setID}
                   onClick={() => handleQuizClick(quiz)}
-                  className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <h3 className="font-bold text-lg mb-2">{quiz.title}</h3>
                   <p className="text-gray-600">{quiz.subject}</p>
@@ -138,7 +138,7 @@ const UserProfile = () => {
             </div>
           </div>
         );
-      case '공유받은 시험지':
+      case '공유받은 퀴즈셋':
         if (isLoading) {
           return (
             <div className="flex justify-center items-center h-64">
@@ -163,13 +163,13 @@ const UserProfile = () => {
 
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-6">공유받은 시험지</h2>
+            <h2 className="text-2xl font-bold mb-6">공유받은 퀴즈셋</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {sharedQuizzes.map((quiz) => (
                 <div
                   key={quiz.setID}
                   onClick={() => handleQuizClick(quiz)}
-                  className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <h3 className="font-bold text-lg mb-2">{quiz.title}</h3>
                   <p className="text-gray-600">{quiz.subject}</p>

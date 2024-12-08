@@ -171,7 +171,7 @@ const Dashboard = () => {
         {/* Popular in Department Section */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">우리 학과 인기 시험지</h2>
+            <h2 className="text-2xl font-bold">우리 학과 인기 퀴즈셋</h2>
             <button className="text-blue-600 hover:text-blue-800"
               onClick={() => navigate('/quizzes', { 
                 state: { 
@@ -210,7 +210,7 @@ const Dashboard = () => {
         {/* Popular Overall Section */}
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">인기 시험지</h2>
+            <h2 className="text-2xl font-bold">인기 퀴즈셋</h2>
             <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate('/quizzes')} >더보기</button>
           </div>
           {isTopQuizzesLoading ? (

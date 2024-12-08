@@ -24,7 +24,7 @@ const QuizSession: React.FC<QuizSessionProps> = ({ questions, onEndSession }) =>
   const [showResult, setShowResult] = useState(false);
   const [wrongQuestions, setWrongQuestions] = useState<QuizQuestion[]>([]);
   const [isReviewMode, setIsReviewMode] = useState(false);
-  const [evaluation, setEvaluation] = useState<{ is_correct: boolean; explanation: string } | null>(null);
+  const [evaluation, setEvaluation] = useState<{ is_correct: boolean; explanation: string; correct_answer: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // const [isEvaluating, setIsEvaluating] = useState(false);
   const navigate = useNavigate();
@@ -86,7 +86,8 @@ const QuizSession: React.FC<QuizSessionProps> = ({ questions, onEndSession }) =>
     if (normalizedUserAnswer === normalizedCorrectAnswer) {
       setEvaluation({
         is_correct: true,
-        explanation: '정확히 일치하는 답변입니다!'
+        explanation: '정확히 일치하는 답변입니다!',
+        correct_answer: currentQuestion.answer
       });
       setScore(score + 1);
       
@@ -102,7 +103,7 @@ const QuizSession: React.FC<QuizSessionProps> = ({ questions, onEndSession }) =>
     // 정확히 일치하지 않는 경우 API 호출
     try {
       const result = await evaluateAnswer(currentQuestion.question, currentQuestion.answer, userAnswer);
-      setEvaluation(result);
+      setEvaluation({...result, correct_answer: currentQuestion.answer});
 
       if (result.is_correct) {
         setScore(score + 1);
@@ -270,6 +271,7 @@ const QuizSession: React.FC<QuizSessionProps> = ({ questions, onEndSession }) =>
           {evaluation && (
             <div className={`mt-6 p-4 rounded-lg ${evaluation.is_correct ? 'bg-green-50' : 'bg-red-50'}`}>
               <p className="font-bold mb-2">{evaluation.is_correct ? '정답입니다!' : '틀렸습니다.'}</p>
+              <p className="whitespace-pre-wrap font-bold mb-2"><span className="font-normal">정답은 : </span>{evaluation.correct_answer}</p>
               <p className="whitespace-pre-wrap">{evaluation.explanation}</p>
               <p className="text-sm text-gray-600 mt-2">엔터 키를 눌러 다음 문제로 이동하세요.</p>
             </div>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Star, Share2, Edit, Trash2 } from 'lucide-react';
+import { shuffle } from 'lodash';
 import { getQuizzesBySetId, fetchQuizDetails, incrementQuizCount, deleteQuiz, shareQuiz } from '../../api/apiCalls';
 import { QuizDto } from '../../interfaces/quiz.dto';
 import QuizSession from './QuizSession';
 import Logo from '../component/Logo';
 import ShareModal from '../component/ShareModal';
+// import { useAuth } from '../../contexts/AuthContext';
 
 interface QuizQuestion {
   id: number;
@@ -23,6 +25,7 @@ const QuizDetail = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
+  // const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -74,8 +77,13 @@ const QuizDetail = () => {
   };
 
   if (isSessionStarted && questions.length > 0) {
+    const shuffledQuestions = shuffle(questions).map((question: QuizQuestion, index: number) => ({
+      ...question,
+      no: index + 1
+    }));
+    
     return <QuizSession 
-      questions={questions} 
+      questions={shuffledQuestions} 
       onEndSession={() => setIsSessionStarted(false)} 
     />;
   }
@@ -133,18 +141,20 @@ const QuizDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center space-x-2 text-blue-600"
-            >
-              <Logo />
-            </button>
+      <nav className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex-shrink-0">
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center space-x-2 text-blue-600"
+              >
+                <Logo />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
       <div className="max-w-6xl mx-auto px-6">
 
 
@@ -173,6 +183,7 @@ const QuizDetail = () => {
                   <span className="text-gray-600">누적 풀이 {quiz.cnt}회</span>
                 </div>
               </div>
+              {/* {user?.username === quiz.creator && ( */}
               <div className="flex space-x-2">
                 <button
                   onClick={handleShare}
@@ -193,6 +204,7 @@ const QuizDetail = () => {
                   <Trash2 className="w-5 h-5" />
                 </button>
               </div>
+              {/* )} */}
               {showShareModal && (
                 <ShareModal 
                   quizId={id!} 
@@ -208,23 +220,11 @@ const QuizDetail = () => {
               >
                 시작하기
               </button>
-              {/* <button
-                onClick={handleEdit}
-                className="flex-1 border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                수정하기
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 border-2 border-red-600 text-red-600 py-3 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                삭제하기
-              </button> */}
             </div>
           </div>
 
           {/* Comments Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          {/* <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">댓글</h2>
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map((index) => (
@@ -248,7 +248,7 @@ const QuizDetail = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
