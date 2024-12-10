@@ -94,8 +94,8 @@ const Dashboard = () => {
           마지막 학습: {formatDate(quiz.lastAttemptDate)}
         </div>
         <div className="flex justify-between mt-2">
-          {/* <span>총 {}문제</span> */}
-          <span> </span>
+          <span>{quiz.public ? '공개' : '비공개'}</span>
+          {/* <span> </span> */}
           <span>조회수 {quiz.cnt}</span>
         </div>
       </div>

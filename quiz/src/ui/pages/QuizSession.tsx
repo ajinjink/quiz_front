@@ -211,9 +211,9 @@ const QuizSession: React.FC<QuizSessionProps> = ({ questions, onEndSession }) =>
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-500">
       {/* Navigation */}
-      <nav className="bg-white shadow">
+      <nav className="bg-slate-50 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex-shrink-0">
@@ -232,7 +232,7 @@ const QuizSession: React.FC<QuizSessionProps> = ({ questions, onEndSession }) =>
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto p-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-slate-50 rounded-lg shadow-md p-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">
               {isReviewMode ? "복습 모드" : ""} 문제 {currentQuestion.no}

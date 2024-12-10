@@ -42,7 +42,6 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(formData.username, formData.password);
-      console.log(response.data);
       // API 응답에서 user와 accessToken을 받아옴
       authLogin({
         user: response.data.user,
